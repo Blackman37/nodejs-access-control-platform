@@ -14,7 +14,7 @@ The planned local environment uses PostgreSQL, Redis, Kafka, MongoDB, Keycloak, 
 
 The project is currently in the design phase. This repository contains documentation only; implementation has not started.
 
-### Implementation progress
+### Implementation Progress
 
 ```text
 [----------] 0%
