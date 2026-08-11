@@ -12,7 +12,7 @@ The planned local environment uses PostgreSQL, Redis, Kafka, MongoDB, Keycloak, 
 
 ## Current status
 
-The project is currently in the design phase. This repository contains documentation only; implementation has not started.
+The root npm workspace has been initialized. Application service implementation has not started yet.
 
 ### Implementation Progress
 
