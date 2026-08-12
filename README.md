@@ -12,7 +12,7 @@ The planned local environment uses PostgreSQL, Redis, Kafka, MongoDB, Keycloak, 
 
 ## Current status
 
-The root npm workspace has been initialized. Application service implementation has not started yet.
+The root npm workspace and shared TypeScript foundation have been initialized. Application service implementation has not started yet.
 
 ### Implementation Progress
 

@@ -2,6 +2,7 @@
   "name": "nodejs-access-control-platform",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "description": "A multi-service Node.js project exploring tenant-aware access control and reliable event delivery.",
   "license": "MIT",
   "engines": {
@@ -9,5 +10,9 @@
   },
   "workspaces": [
     "services/*"
-  ]
+  ],
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "typescript": "^7.0.2"
+  }
 }
