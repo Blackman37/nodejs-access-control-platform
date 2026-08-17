@@ -11,6 +11,13 @@
   "workspaces": [
     "services/*"
   ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "dev:access": "npm run dev --workspace @access-control/access-service",
+    "start:access": "npm run start --workspace @access-control/access-service"
+  },
   "devDependencies": {
     "@types/node": "^24.13.3",
     "typescript": "^7.0.2"

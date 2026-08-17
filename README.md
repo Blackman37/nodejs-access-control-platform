@@ -12,15 +12,39 @@ The planned local environment uses PostgreSQL, Redis, Kafka, MongoDB, Keycloak, 
 
 ## Current status
 
-The root npm workspace and shared TypeScript foundation have been initialized. Application service implementation has not started yet.
+The root npm workspace and shared TypeScript foundation are initialized. The Access Service now has its first executable Fastify boundary, including a liveness endpoint, structured request logging, validated runtime configuration, graceful shutdown, and HTTP-level tests.
 
 ### Implementation Progress
 
 ```text
-[----------] 0%
+[#---------] 10%
 ```
 
 Each filled block represents 10% of the implementation. Update the bar and percentage as the project moves forward.
+
+## Local development
+
+Use the Node.js version declared in `.nvmrc`, install the locked dependencies, and start the Access Service:
+
+```shell
+nvm use
+npm ci
+npm run dev:access
+```
+
+The service listens on `127.0.0.1:3000` by default. `HOST` and `PORT` can override those values; a container can set `HOST=0.0.0.0` when it must accept traffic through its network interface. Its current operational endpoint is:
+
+```text
+GET /health
+```
+
+Run the repository checks from the root:
+
+```shell
+npm run typecheck
+npm run build
+npm test
+```
 
 ## Documentation
 
