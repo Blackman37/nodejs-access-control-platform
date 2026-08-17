@@ -1,0 +1,19 @@
+{
+  "name": "@access-control/access-service",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "dev": "node --watch src/main.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test test/*.test.ts",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "fastify": "^5.11.3"
+  }
+}
