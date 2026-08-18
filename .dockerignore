@@ -1,0 +1,13 @@
+# Local hidden files and directories
+.*
+
+# Dependencies and generated output
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+coverage/
+**/coverage/
+
+# Runtime files
+*.log

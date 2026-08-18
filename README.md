@@ -17,33 +17,42 @@ The root npm workspace and shared TypeScript foundation are initialized. The Acc
 ### Implementation Progress
 
 ```text
-[#---------] 10%
+[##--------] 20%
 ```
 
 Each filled block represents 10% of the implementation. Update the bar and percentage as the project moves forward.
 
 ## Local development
 
-Use the Node.js version declared in `.nvmrc`, install the locked dependencies, and start the Access Service:
+Build and start the Access Service development container:
 
 ```shell
-nvm use
-npm ci
-npm run dev:access
+docker compose up --build
 ```
 
-The service listens on `127.0.0.1:3000` by default. `HOST` and `PORT` can override those values; a container can set `HOST=0.0.0.0` when it must accept traffic through its network interface. Its current operational endpoint is:
+Compose mounts the service source directory into the container, and Node restarts the process when a TypeScript source file changes. Stop the foreground process with `Ctrl+C`, then remove its containers and network when they are no longer needed:
+
+```shell
+docker compose down
+```
+
+The service is available on `127.0.0.1:3000` by default. Set `ACCESS_SERVICE_PORT` before running Compose to select a different host port. Inside the container, the service listens on `0.0.0.0:3000` so Docker can forward host traffic to it. Its current operational endpoint is:
 
 ```text
 GET /health
 ```
 
-Run the repository checks from the root:
+Run the repository checks in an ephemeral development container:
 
 ```shell
-npm run typecheck
-npm run build
-npm test
+docker compose run --build --rm access-service npm run typecheck
+docker compose run --rm access-service npm test
+```
+
+Build the production image target, which compiles TypeScript and contains only runtime dependencies:
+
+```shell
+docker build --target production -t access-control-platform/access-service:local .
 ```
 
 ## Documentation
