@@ -1,0 +1,30 @@
+name: access-control-platform
+
+services:
+  access-service:
+    build:
+      context: .
+      target: development
+    image: access-control-platform/access-service:development
+    init: true
+    environment:
+      HOST: 0.0.0.0
+      PORT: "3000"
+    ports:
+      - "127.0.0.1:${ACCESS_SERVICE_PORT:-3000}:3000"
+    volumes:
+      - type: bind
+        source: ./services/access-service/src
+        target: /app/services/access-service/src
+        read_only: true
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 5s
+      timeout: 2s
+      retries: 5
+      start_period: 10s
+    stop_grace_period: 10s
