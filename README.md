@@ -12,12 +12,12 @@ The planned local environment uses PostgreSQL, Redis, Kafka, MongoDB, Keycloak, 
 
 ## Current status
 
-The root npm workspace and shared TypeScript foundation are initialized. The Access Service now has its first executable Fastify boundary, including a liveness endpoint, structured request logging, validated runtime configuration, graceful shutdown, and HTTP-level tests.
+The root npm workspace and shared TypeScript foundation are initialized. The Access Service has its first executable Fastify boundary, and the local Compose environment now includes PostgreSQL plus a versioned initial schema for organizations and memberships. The application does not connect to PostgreSQL yet; that runtime boundary remains a separate feature.
 
 ### Implementation Progress
 
 ```text
-[##--------] 20%
+[###-------] 30%
 ```
 
 Each filled block represents 10% of the implementation. Update the bar and percentage as the project moves forward.
@@ -30,10 +30,16 @@ Build and start the Access Service development container:
 docker compose up --build
 ```
 
-Compose mounts the service source directory into the container, and Node restarts the process when a TypeScript source file changes. Stop the foreground process with `Ctrl+C`, then remove its containers and network when they are no longer needed:
+Compose starts PostgreSQL, applies pending Access Service migrations through a one-shot migration container, and starts the Access Service. It mounts the service source directory into the application container, and Node restarts the process when a TypeScript source file changes. Stop the foreground process with `Ctrl+C`, then remove its containers and network when they are no longer needed:
 
 ```shell
 docker compose down
+```
+
+The PostgreSQL port is available only inside the Compose network, and its data is retained in a named volume across ordinary `docker compose down` operations. Re-run pending migrations explicitly with:
+
+```shell
+docker compose run --build --rm access-service-migrate
 ```
 
 The service is available on `127.0.0.1:3000` by default. Set `ACCESS_SERVICE_PORT` before running Compose to select a different host port. Inside the container, the service listens on `0.0.0.0:3000` so Docker can forward host traffic to it. Its current operational endpoint is:

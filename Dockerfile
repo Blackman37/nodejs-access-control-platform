@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY services/access-service/package.json ./services/access-service/package.json
 
-RUN npm ci \
+RUN npm ci --ignore-scripts \
     && chown node:node /app /app/services /app/services/access-service
 
 FROM dependencies AS source
@@ -18,6 +18,16 @@ COPY --chown=node:node tsconfig.base.json ./
 COPY --chown=node:node services/access-service/tsconfig.json services/access-service/tsconfig.build.json ./services/access-service/
 COPY --chown=node:node services/access-service/src ./services/access-service/src
 COPY --chown=node:node services/access-service/test ./services/access-service/test
+
+FROM dependencies AS migration
+
+ENV NODE_ENV=development
+
+COPY --chown=node:node services/access-service/migrations ./services/access-service/migrations
+
+USER node
+
+CMD ["npm", "run", "migrate:up", "--workspace", "@access-control/access-service"]
 
 FROM source AS development
 
@@ -44,7 +54,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY services/access-service/package.json ./services/access-service/package.json
 
-RUN npm ci --omit=dev
+RUN npm ci --ignore-scripts --omit=dev
 
 FROM node:${NODE_VERSION}-bookworm-slim AS production
 
