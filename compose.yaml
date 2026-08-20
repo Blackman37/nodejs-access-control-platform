@@ -1,6 +1,36 @@
 name: access-control-platform
 
 services:
+  postgres:
+    image: postgres:18.4-bookworm
+    environment:
+      POSTGRES_DB: access_service
+      POSTGRES_PASSWORD: local-development-only
+      POSTGRES_USER: access_service
+    volumes:
+      - access-service-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 5s
+      timeout: 2s
+      retries: 10
+      start_period: 10s
+    stop_grace_period: 10s
+
+  access-service-migrate:
+    build:
+      context: .
+      target: migration
+    image: access-control-platform/access-service-migration:development
+    environment:
+      DATABASE_URL: postgresql://access_service:local-development-only@postgres:5432/access_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
   access-service:
     build:
       context: .
@@ -28,3 +58,6 @@ services:
       retries: 5
       start_period: 10s
     stop_grace_period: 10s
+
+volumes:
+  access-service-postgres-data:

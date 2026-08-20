@@ -9,11 +9,18 @@
   "scripts": {
     "dev": "node --watch src/main.ts",
     "build": "tsc -p tsconfig.build.json",
+    "migrate:up": "node-pg-migrate up --migrations-dir migrations",
+    "migrate:down": "node-pg-migrate down --migrations-dir migrations",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --test test/*.test.ts",
     "start": "node dist/main.js"
   },
   "dependencies": {
     "fastify": "^5.11.3"
+  },
+  "devDependencies": {
+    "@types/pg": "8.20.0",
+    "node-pg-migrate": "9.0.0",
+    "pg": "8.22.0"
   }
 }
