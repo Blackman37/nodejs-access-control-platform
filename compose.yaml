@@ -38,8 +38,14 @@ services:
     image: access-control-platform/access-service:development
     init: true
     environment:
+      DATABASE_URL: postgresql://access_service:local-development-only@postgres:5432/access_service
       HOST: 0.0.0.0
       PORT: "3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      access-service-migrate:
+        condition: service_completed_successfully
     ports:
       - "127.0.0.1:${ACCESS_SERVICE_PORT:-3000}:3000"
     volumes:
@@ -52,7 +58,7 @@ services:
         - CMD
         - node
         - -e
-        - "fetch('http://127.0.0.1:3000/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+        - "fetch('http://127.0.0.1:3000/ready').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
       interval: 5s
       timeout: 2s
       retries: 5

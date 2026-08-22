@@ -1,35 +1,67 @@
 import { buildApp } from "./app.ts";
-import { loadHttpConfig } from "./config.ts";
+import { loadHttpConfig, loadPostgresConfig } from "./config.ts";
+import { createPostgresAdapter } from "./pg.ts";
 
-const app = buildApp();
+async function main(): Promise<void> {
+  const httpConfig = loadHttpConfig(process.env);
+  const postgresConfig = loadPostgresConfig(process.env);
+  let isShuttingDown = false;
 
-let isShuttingDown = false;
+  const pgAdapter = createPostgresAdapter(postgresConfig);
 
-async function shutDown(signal: NodeJS.Signals): Promise<void> {
-  if (isShuttingDown) {
-    return;
+  const app = buildApp({
+    postgresReadinessCheck: pgAdapter.checkReadiness,
+  });
+
+  let closePromise: Promise<void> | undefined;
+
+  function closeResources(): Promise<void> {
+    closePromise ??= (async () => {
+      try {
+        await app.close();
+      } finally {
+        await pgAdapter.close();
+      }
+    })();
+
+    return closePromise;
   }
 
-  isShuttingDown = true;
-  app.log.info({ signal }, "shutdown requested");
+  async function shutDown(signal: NodeJS.Signals): Promise<void> {
+    if (isShuttingDown) {
+      return;
+    }
+
+    isShuttingDown = true;
+    app.log.info({ signal }, "shutdown requested");
+
+    try {
+      await closeResources();
+      app.log.info("shutdown complete");
+    } catch (error: unknown) {
+      app.log.error({ err: error }, "shutdown failed");
+      process.exitCode = 1;
+    }
+  }
+
+  process.once("SIGINT", () => void shutDown("SIGINT"));
+  process.once("SIGTERM", () => void shutDown("SIGTERM"));
 
   try {
-    await app.close();
-    app.log.info("shutdown complete");
+    await app.listen(httpConfig);
   } catch (error: unknown) {
-    app.log.error({ err: error }, "shutdown failed");
+    app.log.fatal({ err: error }, "startup failed");
     process.exitCode = 1;
+
+    try {
+      await closeResources();
+    } catch (cleanupError: unknown) {
+      app.log.error({ err: cleanupError }, "startup cleanup failed");
+    }
   }
 }
 
-process.once("SIGINT", () => void shutDown("SIGINT"));
-process.once("SIGTERM", () => void shutDown("SIGTERM"));
-
-try {
-  const httpConfig = loadHttpConfig(process.env);
-  await app.listen(httpConfig);
-} catch (error: unknown) {
-  app.log.fatal({ err: error }, "startup failed");
+void main().catch((error: unknown) => {
+  console.error("startup failed", error);
   process.exitCode = 1;
-  await app.close();
-}
+});

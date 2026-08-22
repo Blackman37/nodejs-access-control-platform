@@ -3,6 +3,10 @@ export interface HttpConfig {
   port: number;
 }
 
+export interface PostgresConfig {
+  connectionString: string;
+}
+
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 3000;
 
@@ -29,4 +33,14 @@ export function loadHttpConfig(environment: NodeJS.ProcessEnv): HttpConfig {
   }
 
   return { host, port };
+}
+
+export function loadPostgresConfig(environment: NodeJS.ProcessEnv): PostgresConfig {
+  const connectionString = environment.DATABASE_URL;
+
+  if (typeof connectionString !== "string" || connectionString.trim() === "") {
+    throw new Error("DATABASE_URL must not be empty");
+  }
+
+  return { connectionString };
 }
