@@ -9,7 +9,10 @@ describe("GET /health", () => {
   let app: FastifyInstance;
 
   before(async () => {
-    app = buildApp({ logger: false });
+    app = buildApp({
+      logger: false,
+      postgresReadinessCheck: async () => undefined
+    });
     await app.ready();
   });
 

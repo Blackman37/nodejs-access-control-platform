@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { loadHttpConfig } from "../src/config.ts";
+import { loadHttpConfig, loadPostgresConfig } from "../src/config.ts";
 
 describe("loadHttpConfig", () => {
   it("uses safe local defaults", () => {
@@ -35,5 +35,33 @@ describe("loadHttpConfig", () => {
 
   it("rejects an empty host", () => {
     assert.throws(() => loadHttpConfig({ HOST: "  " }), /HOST must not be empty/);
+  });
+});
+
+describe("loadPostgresConfig", () => {
+  it("loads the PostgreSQL connection string", () => {
+    assert.deepEqual(
+      loadPostgresConfig({
+        DATABASE_URL: "postgresql://user:password@postgres:5432/access_service",
+      }),
+      {
+        connectionString:
+          "postgresql://user:password@postgres:5432/access_service",
+      },
+    );
+  });
+
+  it("rejects a missing PostgreSQL connection string", () => {
+    assert.throws(
+      () => loadPostgresConfig({}),
+      /DATABASE_URL must not be empty/,
+    );
+  });
+
+  it("rejects an empty PostgreSQL connection string", () => {
+    assert.throws(
+      () => loadPostgresConfig({ DATABASE_URL: "  " }),
+      /DATABASE_URL must not be empty/,
+    );
   });
 });
